@@ -26,3 +26,17 @@ class ProductSerializer(serializers.ModelSerializer):
             return round(sum(i.rating for i in reviews) / reviews.count())
         return None
     
+class ReviewValidateSerializer(serializers.Serializer):
+    text = serializers.CharField(required=False)
+    rating = serializers.FloatField(min_value=0, max_value=5)
+    stars = serializers.FloatField(request=False)
+
+class CatagoryValidateSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    product_count = serializers.IntegerField()
+
+class ProductValidateSerializer(serializers.Serializer):
+    title = serializers.CharField()
+    description = serializers.CharField(min_lengh=1)
+    price = serializers.FloatField()
+    stars = serializers.FloatField(required=False)

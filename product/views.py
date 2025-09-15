@@ -1,8 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import ProductSerializer, ReviewSerializer, CategorySerializer
-
+from .serializers import ProductSerializer, ReviewSerializer, CategorySerializer, ReviewValidateSerializer, CatagoryValidateSerializer, ProductValidateSerializer
 # Create your views here.
 @api_view(http_method_names=['GET', 'POST', 'PUT', 'DELETE'])
 def categories_list_create_api_view(request):
@@ -15,7 +14,12 @@ def categories_list_create_api_view(request):
     
         return Response(data=list_categories)
     elif request.method == 'POST':
-        return Response()
+        serializer = CategoryValidateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data=serializer.errors)
+        name = serializer.validated_data.get('name')
+        product_count = serializer.validated_data.get('product_count')
     elif request.method == 'PUT':
         categories.name = request.data.get('name')
         return Response(status=status.HTTP_201_CREATED,
@@ -28,6 +32,15 @@ def products_list_create_api_view(request):
         data = ProductSerializers(products, many = True)
         list_products = []
         return Response(data= list_products)
+    elif request.method == 'POST':
+        serializer = ProductValidateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data=serializer.errors)
+        products.title = serializer.validated_data.get('title')
+        products.description = serializer.validated_data.get('description')
+        products.price = serializer.validated_data.get('price')
+        products.rating = serializer.validated_data.get('rating')
     elif request.method == 'PUT':
         products.title = request.data.get('title')
         products.description = request.data.get('description')
@@ -45,9 +58,13 @@ def reviews_list_create_api_view(request):
     list_reviews = []
     return Response(data=list_reviews)
     if request.method == 'POST':
-        reviews.text = request.data.get('text')
-        reviews.product = request.data.get('product')
-        reviews.stars = request.data.get('stars')
+        serializer = ReviewValidateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data=serializer.errors)
+        reviews.text = serializer.validated_data.get('text')
+        reviews.product = serializer.validated_data.get('product')
+        reviews.stars = serializer.validated_data.get('stars')
 
     elif request.method == 'PUT':
         reviews.text = request.data.get('text')
