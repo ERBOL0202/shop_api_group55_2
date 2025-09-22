@@ -2,8 +2,20 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import ProductSerializer, ReviewSerializer, CategorySerializer, ReviewValidateSerializer, CatagoryValidateSerializer, ProductValidateSerializer
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.viewsets import ModelViewSet
 # Create your views here.
+
 @api_view(http_method_names=['GET', 'POST', 'PUT', 'DELETE'])
+class CategoryListCreateAPIView(ListCreateAPIView):
+    queryset = Category.objects.select_related('title').prefetch_related('reviews', 'product').all()
+    serializer_class = CategorySerializer
+
+class CategoryDetailAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all
+    serializer_class = CategorySerializer
+
 def categories_list_create_api_view(request):
     if request.method == 'GET':
         categories = Category.objects.annotate(products_count=Count('products'))
@@ -26,6 +38,14 @@ def categories_list_create_api_view(request):
                         data=CategorySerializer(categories).data)
 
 @api_view(http_method_names=['GET', 'POST', 'PUT', 'DELETE'])
+class ProductListCreateAPIView(ListCreateAPIView):
+    queryset = Product.objects.all
+    serializer_class = ProductSerializer
+
+class ProductDetailAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all
+    serializer_class = ProductSerializer
+
 def products_list_create_api_view(request):
     products = Product.objects.select_related('reviews').all()
     if request.method == 'GET':
@@ -53,6 +73,14 @@ def products_list_create_api_view(request):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(http_method_names=['POST', 'PUT', 'DELETE'])
+class ReviewListCreateAPIView(ListCreateAPIView):
+    queryset = Product.objects.all
+    serializer_class = ProductSerializer
+
+class ReviewDetailAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Review.objects.all
+    serializer_class = ReviewSerializer
+    
 def reviews_list_create_api_view(request):
     reviews = Review.objects.all()
     list_reviews = []
