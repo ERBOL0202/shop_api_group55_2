@@ -1,7 +1,10 @@
 _pycache__/
 *.py[cod]
 *$py.class
-
+venv
+.venv
+sqlite3
+.sqlite
 __pypackages__/
 
 celerybeat.pid

@@ -1,4 +1,6 @@
 from django.db import models
+from users.models import CustomUser
+from common.models import BaseModel
 
 # Create your models here.
 class Category(models.Model):
@@ -14,9 +16,17 @@ class Product(models.Model):
     price = models.FloatField(max_length=256, null=True)
     rating = models.FloatField()
     category=models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    moderator = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 
-def __str__(self):
+    class Meta:
+         permission = ["IsModerator"]
+
+    def __str__(self):
         return self.title
+    #class Meta:
+         #permission = ["IsModerator"]
+
 
     
 STARS = ((i, '*' * i) for i in range(1, 5))

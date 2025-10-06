@@ -5,6 +5,7 @@ from .serializers import ProductSerializer, ReviewSerializer, CategorySerializer
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.views import APIView
 # Create your views here.
 
 @api_view(http_method_names=['GET', 'POST', 'PUT', 'DELETE'])
@@ -41,10 +42,13 @@ def categories_list_create_api_view(request):
 class ProductListCreateAPIView(ListCreateAPIView):
     queryset = Product.objects.all
     serializer_class = ProductSerializer
+    pagination_class = CustomPagination
+    permission_classes = [(IsOwner, IsAnonymous) | CanEditWithIn15minutes]
 
 class ProductDetailAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all
     serializer_class = ProductSerializer
+    permission_classes = [IsModerator]
 
 def products_list_create_api_view(request):
     products = Product.objects.select_related('reviews').all()

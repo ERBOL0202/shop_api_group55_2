@@ -17,11 +17,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField()
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    is_moderator = models.BooleanField(default=True)
 
     objects = CustomUsermanager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = [phone_number]
 
     def __str__(self):
         return self.email or ""
