@@ -17,7 +17,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField()
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    is_moderator = models.BooleanField(default=True)
 
     objects = CustomUsermanager()
 
