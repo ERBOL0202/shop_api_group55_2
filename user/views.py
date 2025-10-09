@@ -12,7 +12,8 @@ from .models import ConfirmationCode
 import random
 import string
 from users.models import CustomUser
-
+from rest_framework_simplejwt.views import TokenObtainPairView
+from users.serializers import CustomTokenObtainPairSerializer
 
 class AuthorizationAPIView(CreateAPIView):
     serializer_class = AuthValidateSerializer
@@ -99,6 +100,9 @@ class ConfirmUserAPIView(CreateAPIView):
                 'key': token.key
             }
         )
+    
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 #@api_view(['POST'])
 #def registration_api_view(request):
     #serializer = RegisterValidateSerializer(data=request.data)
@@ -112,7 +116,7 @@ class ConfirmUserAPIView(CreateAPIView):
         #second_name=serializer.validated_data['second_name'],
         #password=serializer.validated_data['password'],
         #is_active=False
-    )
+    #)
 
     #return Response(status=status.HTTP_201_CREATED, data={'user_id': user.id})
 

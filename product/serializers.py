@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Product, Review, Category
+from common.validators import validate_user_age_from_token
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -25,6 +26,12 @@ class ProductSerializer(serializers.ModelSerializer):
         if reviews:
             return round(sum(i.rating for i in reviews) / reviews.count())
         return None
+    def create(self, validated_data):
+        request = self.context.get('request')
+        birthdate = request.auth.payload.get('birthdate') if request and request.auth else None
+
+        validate_user_age_from_token(birthdate)
+
     
 class ReviewValidateSerializer(serializers.Serializer):
     text = serializers.CharField(required=False)

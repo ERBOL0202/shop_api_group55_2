@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework.exceptions import ValidationError
 from .models import ConfirmationCode
 from users.models import CustomUser
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserBaseSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -61,3 +62,17 @@ class ConfirmationValidateSerializer(serializers.Serializer):
         return attrs
     #username = serializers.CharField()
     #password = serializers.CharField()
+
+
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["email"] = user.emai
+        token = super().get_token(user)
+        if user.birthdate:
+            token['birthdate'] = str(user.birthdate)
+        return token
+    
