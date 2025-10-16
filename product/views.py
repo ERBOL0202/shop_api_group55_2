@@ -6,6 +6,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
+from django.core.cache import cache
 # Create your views here.
 
 @api_view(http_method_names=['GET', 'POST', 'PUT', 'DELETE'])
@@ -75,6 +76,16 @@ def products_list_create_api_view(request):
     elif request.method == 'DELETE':
         products.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    def get(self, request, *args, **kwargs):
+        cached_data = cache.get("product_list")
+        if cached_data:
+            print("Redis")
+            return Response(data=cached_data, status=status.HTTP_200_OK)
+        response = super().get(self, request, *args, **kwargs)
+        print("Postgres")
+        if response.data.get("total", 0) > 0:
+            cache.set("product_list", response.data, timeout=300)
+        return response
 
 @api_view(http_method_names=['POST', 'PUT', 'DELETE'])
 class ReviewListCreateAPIView(ListCreateAPIView):
