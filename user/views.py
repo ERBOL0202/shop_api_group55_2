@@ -14,6 +14,7 @@ import string
 from users.models import CustomUser
 from rest_framework_simplejwt.views import TokenObtainPairView
 from users.serializers import CustomTokenObtainPairSerializer
+from users import utils as confirmation_utils
 
 class AuthorizationAPIView(CreateAPIView):
     serializer_class = AuthValidateSerializer
@@ -56,7 +57,16 @@ class RegistrationAPIView(CreateAPIView):
                 email=email,
                 password=password,
                 is_active=False
-            )
+            ) 
+            code = confirmation_utils.generate_confirmation_code(length=6)
+            saved = confirmation_utils.save_code_to_cache(user.id, code, ttl=300)
+
+            if not saved:
+
+                return Response(
+                    {'detail': 'Не удалось сохранить код подтверждения. Попробуйте позже.'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
 
             # Create a random 6-digit code
             code = ''.join(random.choices(string.digits, k=6))
@@ -83,6 +93,21 @@ class ConfirmUserAPIView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         user_id = serializer.validated_data['user_id']
+
+        
+        if confirmation_utils.verify_code(user_id, code):
+            user.is_active = True
+            user.save()
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response(
+                status=status.HTTP_200_OK,
+                data={'message': 'Аккаунт успешно активирован', 'key': token.key}
+            )
+
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data={'error': 'Неверный или просроченный код'}
+        )
 
         with transaction.atomic():
             user = CustomUser.objects.get(id=user_id)
