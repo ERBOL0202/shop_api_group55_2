@@ -138,6 +138,9 @@ CACHES = {
      }
 }
 
+
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
